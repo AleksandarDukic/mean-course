@@ -20,7 +20,7 @@ const normalizePort = val => {
 
 const onError = error => {
   if (error.syscall !== "listen") {
-    throw errror;
+    throw error;
   }
   const bind = typeof addr === "string" ? "pipe" + addr : "port " + port;
   switch(error.code) {
