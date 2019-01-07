@@ -35,7 +35,7 @@ export class PostsService {
     return this.postsUpdated.asObservable();
   }
 
-  getPost(id: string) {
+  getPost(id: string) {// ne moze ovde RETURN jer je asinhrono, zato se subscription radi u post create, ovde JE rezultat dobija OBSERVABLE
     return this.http.get<{ _id: string, title: string, content: string }>('http://localhost:3000/api/posts/' + id);
   }
 
