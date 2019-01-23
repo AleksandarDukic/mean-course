@@ -21,7 +21,7 @@ export class PostCreateComponent implements OnInit {
   private postId: string;
 
   constructor(
-    public postService: PostsService,
+    public postsService: PostsService,
     public route: ActivatedRoute
   ) {}
 
@@ -40,18 +40,20 @@ export class PostCreateComponent implements OnInit {
     this.route.paramMap.subscribe((paramMap: ParamMap) => { // subscribtion je zato sto postId moze da se menja ili edit<->create
       if (paramMap.has('postId')) {                       // zato sto smo ga tako definisali u app-routeing.module
         this.mode = 'edit';
-        this.postId = paramMap.get('postId');
+        this.postId = paramMap.get('postId');             // na bekendu je req.params.id
         this.isLoading = true;
-        this.postService.getPost(this.postId).subscribe(postData => { // kada stigne popuni mat-card
+        this.postsService.getPost(this.postId).subscribe(postData => { // kada stigne popuni mat-card
           this.isLoading = false;
           this.post = {
             id: postData._id,
             title: postData.title,
-            content: postData.content
+            content: postData.content,
+            imagePath: postData.imagePath
           };
           this.form.setValue({
             'title': this.post.title,
-            'content': this.post.content
+            'content': this.post.content,
+            'image': this.post.imagePath
           });
         });
       } else {
@@ -80,12 +82,18 @@ export class PostCreateComponent implements OnInit {
     }
     this.isLoading = true;
     if (this.mode === 'create') {
-      this.postService.addPost(this.form.value.title, this.form.value.content);
+      this.postsService.addPost(
+      this.form.value.title,
+      this.form.value.content,
+      this.form.value.image
+      );
     } else {
-      this.postService.updatePost(
+      this.postsService.updatePost(
         this.postId,
         this.form.value.title,
-        this.form.value.content);
+        this.form.value.content,
+        this.form.value.image
+        );
     }
     this.form.reset();
   }

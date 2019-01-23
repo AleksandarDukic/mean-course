@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -17,6 +18,8 @@ mongoose.connect("mongodb+srv://max:iJmfNTc6lmHHADQZ@cluster0-e5iof.mongodb.net/
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use("/images", express.static(path.join("backend/images")));    // omogucavamo slobodan poziv na /images, koristimi paket path da bi bilo bezbedno da radi na svakoj masini
 
 
 app.use((req, res, next) => {
