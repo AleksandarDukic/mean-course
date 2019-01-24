@@ -69,13 +69,30 @@ router.put(
 });
 
 router.get("",(req, res, next) => {
-  Post.find().then(documents => {
-    res.status(200).json({
-    message: 'Posts fetched successfully!',
-    posts: documents
-    });
-  });
+  // console.log(req.query);              // sa req.query vadimo iz url-a informaciju posle "?"
+  const pageSize = +req.query.pagesize;    // .pagesize mi biramo ime. to su query parameters  // izvod iz query parametra je uvek string
+  const currentPage = +req.query.page;     // a program hoce broj, at radimo ako dodamo + ispred
+  const postQuery = Post.find();          // Post.find() se poziva tek kada se pozove .then(() => {});
+  let fetchedPosts;
+  if (pageSize && currentPage) {
+    postQuery
+      .skip(pageSize*(currentPage - 1))   // skip() je mongoose funkcija
+      .limit(pageSize);
+    }
+  postQuery
+    .then(documents => {
+      fetchedPosts = documents;            // broj postova // ne moramo da chainujemo jos jedan then block jer ako je vec u then bloku
+      return Post.count()                 // stvorice se novi "promise" i njegov rezultat ce se automatski slusati
+    })                                     // moramo da storujemo dokumenta
+    .then(count => {
+     res.status(200).json({
+       message: "Posts fetched sccessfully",
+       posts: fetchedPosts,
+       maxPosts: count
+      })
+    })
 });
+
 
 router.get("/:id", (req, res, next) =>{
   Post.findById(req.params.id).then(post => {
