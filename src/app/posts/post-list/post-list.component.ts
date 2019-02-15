@@ -3,6 +3,7 @@ import { PageEvent } from '@angular/material';
 import { Subscription } from 'rxjs';
 import { Post } from '../post.model';
 import { PostsService } from '../posts.service';
+import { AuthService } from '../../auth/auth.service';
 
 @Component ({
   selector: 'app-post-list',
@@ -21,9 +22,11 @@ export class PostListComponent implements OnInit, OnDestroy {
   pageSizeOptions = [1, 2, 5, 10]; //  kada se ovo iskljuci radi bez greske
   postsPerPage = 2;
   currentPage = 1;
+  userIsAuthenticated = false;
 
   private postsSub: Subscription;
-  constructor(public postsService: PostsService) {}
+  private authStatusSub: Subscription;
+  constructor(public postsService: PostsService, private authService: AuthService) {}
 
   ngOnInit() {
     this.isLoading = true;
@@ -35,6 +38,12 @@ export class PostListComponent implements OnInit, OnDestroy {
         this.totalPosts = postData.postCount;
         this.posts = postData.posts;
     });
+    this.userIsAuthenticated = this.authService.getIsAuth();
+    this.authStatusSub = this.authService     // trenutno nam ne radi posao jer sa login stranice
+      .getAuthStatusListener()                // prelazimo na ovu pa je proces gotov i ne stize nova
+      .subscribe(isAuthenticated =>{          // informacija u subscription
+        this.userIsAuthenticated = isAuthenticated;
+      });
   }
 
   onChangedPage(pageData: PageEvent) {
@@ -53,5 +62,6 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.postsSub.unsubscribe();
+    this.authStatusSub.unsubscribe();
   }
 }

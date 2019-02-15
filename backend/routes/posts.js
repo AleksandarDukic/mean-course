@@ -1,7 +1,8 @@
 const express = require("express");
 const multer = require('multer');
 const Post = require('../models/post');
-
+const checkAuth = require('../middleware/check-auth');  // dodaje se u middleware, posle puta ali pre logike
+                                                        // prosledjujemo samo referncu na funkciju checkAuth, bez () jer ce je express izvrsiti
 const router = express.Router();
 
 const MIME_TYPE_MAP = {
@@ -17,7 +18,7 @@ const storage = multer.diskStorage({
     if (isValid) {
       error = null;
     }
-    cb(error, "backend/images");         // put relativan u odnosu na server.js ---- cb je mesto gde multer upisuje
+    cb(error, "backend/images"); // put relativan u odnosu na server.js ---- cb je mesto gde multer upisuje
   },
   filename: (req, file, cb) => {
     const name = file.originalname.toLowerCase().split(' ').join('-');
@@ -28,10 +29,10 @@ const storage = multer.diskStorage({
 
 router.post(
   "",
+  checkAuth,
   multer({storage: storage}).single("image"),
   (req, res, next) => {
-    const url = req.protocol + '://' + req.get("host");           // req.protocol na vraca ili http ili https
-    //console.log(req.get("host"));   Probaj da nadjes ovaj log, u db-u izgleda da je localhost:3000
+    const url = req.protocol + '://' + req.get("host");           // req.protocol vraca ili http ili https
     const post = new Post({
      title: req.body.title,
      content: req.body.content,
@@ -50,6 +51,7 @@ router.post(
 
 router.put(
   "/:id",
+  checkAuth,
   multer({storage: storage}).single("image"),
   (req ,res, next) => {
     let imagePath = req.body.imagePath;
@@ -71,7 +73,7 @@ router.put(
 router.get("",(req, res, next) => {
   // console.log(req.query);              // sa req.query vadimo iz url-a informaciju posle "?"
   const pageSize = +req.query.pagesize;    // .pagesize mi biramo ime. to su query parameters  // izvod iz query parametra je uvek string
-  const currentPage = +req.query.page;     // a program hoce broj, at radimo ako dodamo + ispred
+  const currentPage = +req.query.page;     // a program hoce broj, a to radimo ako dodamo + ispred
   const postQuery = Post.find();          // Post.find() se poziva tek kada se pozove .then(() => {});
   let fetchedPosts;
   if (pageSize && currentPage) {
@@ -94,7 +96,7 @@ router.get("",(req, res, next) => {
 });
 
 
-router.get("/:id", (req, res, next) =>{
+router.get("/:id", checkAuth, (req, res, next) =>{
   Post.findById(req.params.id).then(post => {
     if (post) {
       res.status(200).json(post);
@@ -104,7 +106,7 @@ router.get("/:id", (req, res, next) =>{
   })
 })
 
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", checkAuth, (req, res, next) => {
   Post.deleteOne({_id: req.params.id}).then(result => {
     console.log(result);
     res.status(200).json({message: "Post deteletd"});         // req.params. Tu ide dinamicki parametar koji dodje gore posle ":" kao sto je ovde id
@@ -112,7 +114,3 @@ router.delete("/:id", (req, res, next) => {
 });
 
 module.exports = router;
-
-
-
-
