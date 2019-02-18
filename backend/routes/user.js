@@ -54,7 +54,8 @@ router.post("/login", (req, res, next) => {
     console.log(token);
     res.status(200).json({                        // poslednji res u metodi pa ne mora return
       token: token,
-      expiresIn: 3600                              // radi u seknudama
+      expiresIn: 3600,                              // radi u seknudama
+      userId: fetchedUser._id
     })
   })
   .catch(err => {
