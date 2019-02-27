@@ -9,7 +9,8 @@ import {
   MatToolbarModule,
   MatExpansionModule,
   MatProgressSpinnerModule,
-  MatPaginatorModule
+  MatPaginatorModule,
+  MatDialogModule
 } from '@angular/material';
 
 import { AppComponent } from './app.component';
@@ -21,6 +22,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { LoginComponent } from './auth/login/login.component';
 import { SignupComponent } from './auth/signup/signup.component';
 import { AuthInterceptor } from './auth/auth-interceptor';
+import { ErrorInterceptor } from './error-interceptor';
+import { ErrorComponent } from './error/error.component';
 
 
 @NgModule({
@@ -30,7 +33,8 @@ import { AuthInterceptor } from './auth/auth-interceptor';
     HeaderComponent,
     PostListComponent,
     LoginComponent,
-    SignupComponent
+    SignupComponent,
+    ErrorComponent
    ],
   imports: [
     BrowserModule,
@@ -45,12 +49,15 @@ import { AuthInterceptor } from './auth/auth-interceptor';
     MatExpansionModule,
     MatProgressSpinnerModule,
     MatPaginatorModule,
+    MatDialogModule,
     HttpClientModule,
   ],
   providers: [
-    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}
+    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true}
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [ErrorComponent]   // stavljamo ErrorComponent u ! entryComponent ! zato sto se ta komponenta stvara i unistava dinamcki
 })
 export class AppModule { }
 

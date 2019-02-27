@@ -39,16 +39,22 @@ router.post(
       imagePath: url + "/images/" + req.file.filename,              // file property stvara multer kao i filename
       creator: req.userData.userId
     });
-  post.save().then(createdPost => {                               // createdPost je rezultat tj. napravljeni Post()
-    res.status(201).json({
-      message: 'Post added succesfully',
-      post: {
-        ...createdPost,
-        id: createdPost._id
-      }
+    post.save().then(createdPost => {                               // createdPost je rezultat tj. napravljeni Post()
+      res.status(201).json({
+        message: 'Post added succesfully',
+        post: {
+          ...createdPost,
+          id: createdPost._id
+        }
+      });
+    })
+    .catch(error => {
+      res.status(500).json({
+        message: "Creating a post failed!"
+      })
     });
-  });
-});
+  }
+);
 
 router.put(
   "/:id",
@@ -66,15 +72,24 @@ router.put(
       content: req.body.content,
       imagePath: imagePath,
       creator: req.userData.userId
-  });
-  Post.updateOne({ _id: req.params.id, creator: req.userData.userId }, post).then(result => {
-    if (result.nModified > 0) {
-      res.status(200).json({ message: 'Update successful!' })
-    } else {
-    res.status(401).json({ message: 'Not authorized' })
-    }
-  });
-});
+    });
+    Post.updateOne(
+      { _id: req.params.id, creator: req.userData.userId },
+      post
+    ).then(result => {
+      if (result.nModified > 0) {
+        res.status(200).json({ message: 'Update successful!' })
+      } else {
+        res.status(401).json({ message: 'Not authorized' })
+      }
+    })
+    .catch(error => {
+      res.status(500).json({
+        message: "Couldn't update post!"
+      })
+    });
+  }
+);
 
 router.get("",(req, res, next) => {
   // console.log(req.query);              // sa req.query vadimo iz url-a informaciju posle "?"
@@ -99,6 +114,11 @@ router.get("",(req, res, next) => {
        maxPosts: count
       })
     })
+    .catch(error => {
+      res.status(500).json({
+        message: "Fetching posts failed!"
+      });
+    });
 });
 
 
@@ -110,15 +130,26 @@ router.get("/:id", checkAuth, (req, res, next) =>{
       res.status(404).json({ message: 'Post not found'});
     }
   })
+  .catch(error => {
+    res.status(500).json({
+      message: "Fetching posts failed!"
+    });
+  });
 })
 
 router.delete("/:id", checkAuth, (req, res, next) => {
-  Post.deleteOne({ _id: req.params.id, creator: req.userData.userId }).then(result => { // req.params. Tu ide dinamicki parametar koji dodje gore posle ":" kao sto je ovde id
-    if (result.n > 0) {
-      res.status(200).json({ message: 'Deletion successful!' })
-    } else {
-    res.status(401).json({ message: 'Not authorized' })
+  Post.deleteOne({ _id: req.params.id, creator: req.userData.userId }).then(
+    result => {       // req.params. Tu ide dinamicki parametar koji dodje gore posle ":" kao sto je ovde id
+      if (result.n > 0) {
+        res.status(200).json({ message: 'Deletion successful!' })
+      } else {
+        res.status(401).json({ message: 'Not authorized' })
+      }
     }
+  ).catch(error => {
+    res.status(500).json({
+      message: "Fetching posts failed!"
+    });
   });
 });
 
