@@ -8,7 +8,7 @@ const userRoutes = require("./routes/user");
 
 const app = express();
 
-mongoose.connect("mongodb+srv://max:iJmfNTc6lmHHADQZ@cluster0-e5iof.mongodb.net/node-angular")  // obrisali smo ?retryWrites=true
+mongoose.connect("mongodb+srv://max:" + process.env.MONGO_ATLAS_PW + "@cluster0-e5iof.mongodb.net/node-angular")  // obrisali smo ?retryWrites=true
   .then(() => {
     console.log('Connected to database!')
   })
@@ -42,3 +42,4 @@ app.use("/api/user", userRoutes);
 module.exports = app;
 
 // USER: max PASSWORD: iJmfNTc6lmHHADQZ
+
